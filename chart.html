@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דשבורד יעילות פרסום</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .dashboard {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        canvas {
+            width: 100% !important;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1>דשבורד יעילות פרסום</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="revenueMaxSlider">טווח הכנסה מקסימלי:</label>
+                <input type="range" id="revenueMaxSlider" min="300" max="1000" step="50" value="300">
+                <span id="revenueMaxValue">300</span>
+            </div>
+            <div class="control-group">
+                <label for="viewRateMaxSlider">שיעור צפייה מקסימלי:</label>
+                <input type="range" id="viewRateMaxSlider" min="20" max="100" step="10" value="100">
+                <span id="viewRateMaxValue">100</span>
+            </div>
+        </div>
+
+        <canvas id="advertisingChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('advertisingChart').getContext('2d');
+        let advertisingChart;
+
+        const data = [
+            { numAds: 1, revenue: 100, viewRate: 90 },
+            { numAds: 2, revenue: 180, viewRate: 75 },
+            { numAds: 3, revenue: 240, viewRate: 55 },
+            { numAds: 4, revenue: 270, viewRate: 40 },
+            { numAds: 5, revenue: 280, viewRate: 25 },
+            { numAds: 6, revenue: 270, viewRate: 15 },
+            { numAds: 7, revenue: 250, viewRate: 10 }
+        ];
+
+        function createChart(revenueMax, viewRateMax) {
+            if (advertisingChart) {
+                advertisingChart.destroy();
+            }
+
+            advertisingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.numAds),
+                    datasets: [
+                        {
+                            label: 'הכנסה (₪)',
+                            data: data.map(d => d.revenue),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'שיעור צפייה (%)',
+                            data: data.map(d => d.viewRate),
+                            borderColor: 'rgb(255, 99, 132)',
+                            tension: 0.1,
+                            yAxisID: 'y2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 0,
+                            max: revenueMax,
+                            title: {
+                                display: true,
+                                text: 'הכנסה (₪)'
+                            }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: viewRateMax,
+                            title: {
+                                display: true,
+                                text: 'שיעור צפייה (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const revenueMaxSlider = document.getElementById('revenueMaxSlider');
+        const revenueMaxValue = document.getElementById('revenueMaxValue');
+        const viewRateMaxSlider = document.getElementById('viewRateMaxSlider');
+        const viewRateMaxValue = document.getElementById('viewRateMaxValue');
+
+        revenueMaxSlider.addEventListener('input', function() {
+            revenueMaxValue.textContent = this.value;
+            createChart(
+                parseInt(this.value), 
+                parseInt(viewRateMaxSlider.value)
+            );
+        });
+
+        viewRateMaxSlider.addEventListener('input', function() {
+            viewRateMaxValue.textContent = this.value;
+            createChart(
+                parseInt(revenueMaxSlider.value), 
+                parseInt(this.value)
+            );
+        });
+
+        // Initial chart creation
+        createChart(300, 100);
+    </script>
+</body>
+</html>
