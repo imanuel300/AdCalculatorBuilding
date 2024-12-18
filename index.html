@@ -109,7 +109,8 @@
         <div class="mt-8 grid md:grid-cols-2 gap-6">
             <div id="results" class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">תוצאות כספיות</h2>
-                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: -</p>
+                <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
+                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
                 <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
                 <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
                 <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
@@ -158,7 +159,12 @@
         
         // חישוב חשיפות פוטנציאליות
         const potentialDailyExposures = exposuresPerCycle * peoplePerExposure * screenCount;
+
+        // חישוב חשיפות יומיות בפועל
         const actualDailyExposures = potentialDailyExposures * (adExposureProbability / 100);
+
+        // חישוב חשיפות פוטנציאליות לאדם
+        const potentialDailyExposuresPerPerson = potentialDailyExposures / totalPeople;
 
         // חישוב הכנסות
         const dailyRevenue = actualDailyExposures * (adPrice / 1000);
@@ -179,6 +185,8 @@
         // עדכון תצוגה
         document.getElementById('dailyExposures').textContent = 
             `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
+        document.getElementById('dailyExposuresPerPerson').textContent = 
+            `חשיפות פוטנציאליות יומיות לאדם: ${potentialDailyExposuresPerPerson.toFixed(0)}`;
         document.getElementById('potentialRevenue').textContent = 
             `הכנסה פוטנציאלית יומית: ₪${dailyRevenue.toFixed(2)}`;
         document.getElementById('monthlyRevenue').textContent = 
