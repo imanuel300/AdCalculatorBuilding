@@ -16,6 +16,13 @@
                 <h2 class="font-bold text-xl mb-4 text-blue-600">פרמטרים בסיסיים</h2>
                 
                 <div class="mb-4">
+                    <label class="block text-sm font-medium">כמות מסכים
+                        <span class="text-xs text-gray-500 block">מספר המסכים בבניין</span>
+                    </label>
+                    <input type="number" id="screenCount" class="w-full p-2 border rounded" placeholder="כמות מסכים" oninput="calculateRevenue()">
+                </div>
+
+                <div class="mb-4">
                     <label class="block text-sm font-medium">מספר דיירים בבניין
                         <span class="text-xs text-gray-500 block">כמה אנשים גרים/עובדים בבניין</span>
                     </label>
@@ -82,7 +89,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium">השקעה ראשונית
+                    <label class="block text-sm font-medium">השקעה ראשונית (עבור מסך אחד)
                         <span class="text-xs text-gray-500 block">עלות רכישת הציוד ההתחלתי</span>
                     </label>
                     <input type="number" id="initialInvestment" class="w-full p-2 border rounded" placeholder="השקעה ראשונית">
@@ -94,6 +101,9 @@
             <button onclick="calculateRevenue()" class="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 transition-all font-bold">
                 חשב הכנסות
             </button>
+            <button onclick="fillDummyData()" class="bg-gray-500 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition-all font-bold">
+                הכנס נתוני דמה
+            </button>
         </div>
 
         <div class="mt-8 grid md:grid-cols-2 gap-6">
@@ -103,6 +113,9 @@
                 <p id="potentialRevenue" class="mb-2">הכנסה פוטנציאלית יומית: -</p>
                 <p id="monthlyRevenue" class="mb-2">הכנסה חודשית משוערת: -</p>
                 <p id="annualRevenue" class="mb-2">הכנסה שנתית משוערת: -</p>
+                <p id="dailyExposureProbability" class="mb-2">הסתברות יומית: -</p>
+                <p id="weeklyExposureProbability" class="mb-2">הסתברות שבועית: -</p>
+                <p id="monthlyExposureProbability" class="mb-2">הסתברות חודשית: -</p>
             </div>
 
             <div class="bg-gray-100 p-6 rounded-lg">
@@ -123,12 +136,17 @@
         const adPrice = +document.getElementById('adPrice').value || 0;
         const maintenanceCost = +document.getElementById('maintenanceCost').value || 0;
         const initialInvestment = +document.getElementById('initialInvestment').value || 0;
+        const screenCount = +document.getElementById('screenCount').value || 1;
 
         const totalPeople = residentsCount + passersbyCount;
-        const dailyExposures = totalPeople * dailyMovements * adCount * (adExposureProbability / 100);
+        const dailyExposures = totalPeople * dailyMovements * adCount * (adExposureProbability / 100) * screenCount;
         const dailyRevenue = dailyExposures * (adPrice / 1000);
         const monthlyRevenue = dailyRevenue * 30;
         const annualRevenue = dailyRevenue * 365;
+
+        const dailyExposureProbability = adExposureProbability;
+        const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
+        const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
         document.getElementById('dailyExposures').textContent = 
             `חשיפות יומיות: ${dailyExposures.toFixed(2)}`;
@@ -138,6 +156,12 @@
             `הכנסה חודשית משוערת: ₪${monthlyRevenue.toFixed(2)}`;
         document.getElementById('annualRevenue').textContent = 
             `הכנסה שנתית משוערת: ₪${annualRevenue.toFixed(2)}`;
+        document.getElementById('dailyExposureProbability').textContent = 
+            `הסתברות יומית: ${dailyExposureProbability.toFixed(2)}%`;
+        document.getElementById('weeklyExposureProbability').textContent = 
+            `הסתברות שבועית: ${weeklyExposureProbability.toFixed(2)}%`;
+        document.getElementById('monthlyExposureProbability').textContent = 
+            `הסתברות חודשית: ${monthlyExposureProbability.toFixed(2)}%`;
 
         // יצירת תרשים
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -164,6 +188,21 @@
                 }
             }
         });
+    }
+
+    function fillDummyData() {
+        document.getElementById('residentsCount').value = 20 * 3; // 20 דירות, 3 אנשים לדירה
+        document.getElementById('passersbyCount').value = 15;
+        document.getElementById('dailyMovements').value = 2;
+        document.getElementById('adCount').value = 30;
+        document.getElementById('adDuration').value = 8;
+        document.getElementById('adExposureProbability').value = 50;
+        document.getElementById('adPrice').value = 100;
+        document.getElementById('maintenanceCost').value = 100;
+        document.getElementById('initialInvestment').value = 2500;
+        document.getElementById('screenCount').value = 1;
+
+        calculateRevenue();
     }
     </script>
 </body>
