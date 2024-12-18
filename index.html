@@ -63,8 +63,8 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium">הסתברות צפייה בפרסום (%)
-                        <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את הפרסומת</span>
+                    <label class="block text-sm font-medium">הסתברות צפייה במסך (%)
+                        <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את המסך</span>
                     </label>
                     <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה" oninput="calculateRevenue()">
                 </div>
@@ -109,20 +109,26 @@
         <div class="mt-8 grid md:grid-cols-2 gap-6">
             <div id="results" class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">תוצאות כספיות</h2>
-                <p id="dailyExposures" class="mb-2">חשיפות יוטנציאליות יומיות: -</p>
-                <span class="text-xs text-gray-500 block">מספר האנשים הפוטנציאליים שייחשפו לפרסום.</span>
-                <p id="potentialRevenue" class="mb-2">הכנסה פוטנציאלית יומית: -</p>
-                <span class="text-xs text-gray-500 block">ההכנסה היומית הפוטנציאלית מהפרסומות.</span>
-                <p id="monthlyRevenue" class="mb-2">הכנסה חודשית משוערת: -</p>
-                <span class="text-xs text-gray-500 block">ההכנסה החודשית המשוערת מהפרסומות.</span>
-                <p id="annualRevenue" class="mb-2">הכנסה שנתית משוערת: -</p>
-                <span class="text-xs text-gray-500 block">ההכנסה השנתית המשוערת מהפרסומות.</span>
-                <p id="dailyExposureProbability" class="mb-2">הסתברות יומית לחשיפה: -</p>
-                <span class="text-xs text-gray-500 block">ההסתברות שאדם יחשף לפרסומת ביום.</span>
-                <p id="weeklyExposureProbability" class="mb-2">הסתברות שבועית לחשיפה: -</p>
-                <span class="text-xs text-gray-500 block">ההסתברות שאדם יחשף לפרסומת בשבוע.</span>
-                <p id="monthlyExposureProbability" class="mb-2">הסתברות חודשית לחשיפה: -</p>
-                <span class="text-xs text-gray-500 block">ההסתברות שאדם יחשף לפרסומת בחודש.</span>
+                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: -</p>
+                <span class="text-xs text-gray-500 block mb-3">סך כל האנשים שעשויים לראות את המסך ביום</span>
+                
+                <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
+                <span class="text-xs text-gray-500 block mb-3">ההכנסה היומית המשוערת מכל החשיפות</span>
+                
+                <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
+                <span class="text-xs text-gray-500 block mb-3">סך ההכנסות הצפויות בחודש</span>
+                
+                <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
+                <span class="text-xs text-gray-500 block mb-3">סך ההכנסות הצפויות בשנה</span>
+                
+                <p id="dailyExposureProbability" class="mb-1">סיכוי חשיפה יומי לפרסומת: -</p>
+                <span class="text-xs text-gray-500 block mb-3">הסיכוי שפרסומת ספציפית תיראה על ידי אדם ביום</span>
+                
+                <p id="weeklyExposureProbability" class="mb-1">סיכוי חשיפה שבועי לפרסומת: -</p>
+                <span class="text-xs text-gray-500 block mb-3">הסיכוי שפרסומת ספציפית תיראה על ידי אדם בשבוע</span>
+                
+                <p id="monthlyExposureProbability" class="mb-1">סיכוי חשיפה חודשי לפרסומת: -</p>
+                <span class="text-xs text-gray-500 block mb-3">הסיכוי שפרסומת ספציפית תיראה על ידי אדם בחודש</span>
             </div>
 
             <div class="bg-gray-100 p-6 rounded-lg">
@@ -157,8 +163,9 @@
         const monthlyRevenue = dailyRevenue * 30;
         const annualRevenue = dailyRevenue * 365;
 
-        // חישוב הסתברות מעודכן - מבוסס על מספר המעברים ליד המסך
-        const dailyExposureProbability = Math.min(100, (adExposureProbability * dailyMovements));
+        // חישוב הסתברות מעודכן - הסיכוי שפרסומת ספציפית תיראה
+        const singleAdProbability = adExposureProbability / 100 / adCount; // הסיכוי לראות פרסומת ספציפית
+        const dailyExposureProbability = Math.min(100, singleAdProbability * dailyMovements * 100);
         const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
         const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
