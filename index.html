@@ -26,21 +26,21 @@
                     <label class="block text-sm font-medium">מספר דיירים בבניין
                         <span class="text-xs text-gray-500 block">כמה אנשים גרים/עובדים בבניין</span>
                     </label>
-                    <input type="number" id="residentsCount" class="w-full p-2 border rounded" placeholder="מספר דיירים">
+                    <input type="number" id="residentsCount" class="w-full p-2 border rounded" placeholder="מספר דיירים" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">עוברי אורח מזדמנים
                         <span class="text-xs text-gray-500 block">מספר אנשים שעוברים ליד הבניין</span>
                     </label>
-                    <input type="number" id="passersbyCount" class="w-full p-2 border rounded" placeholder="מספר עוברי אורח">
+                    <input type="number" id="passersbyCount" class="w-full p-2 border rounded" placeholder="מספר עוברי אורח" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">כניסות/יציאות יומיות
                         <span class="text-xs text-gray-500 block">כמה פעמים אדם נכנס/יוצא ביום</span>
                     </label>
-                    <input type="number" id="dailyMovements" class="w-full p-2 border rounded" placeholder="מספר תנועות">
+                    <input type="number" id="dailyMovements" class="w-full p-2 border rounded" placeholder="מספר תנועות" oninput="calculateRevenue()">
                 </div>
             </div>
 
@@ -52,21 +52,21 @@
                     <label class="block text-sm font-medium">מספר פרסומות למסך
                         <span class="text-xs text-gray-500 block">כמה פרסומות יוצגו סך הכל</span>
                     </label>
-                    <input type="number" id="adCount" class="w-full p-2 border rounded" placeholder="מספר פרסומות">
+                    <input type="number" id="adCount" class="w-full p-2 border rounded" placeholder="מספר פרסומות" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">זמן הצגת פרסומת (שניות)
                         <span class="text-xs text-gray-500 block">משך זמן תצוגת כל פרסומת</span>
                     </label>
-                    <input type="number" id="adDuration" class="w-full p-2 border rounded" placeholder="זמן פרסומת">
+                    <input type="number" id="adDuration" class="w-full p-2 border rounded" placeholder="זמן פרסומת" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">הסתברות צפייה בפרסום (%)
                         <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את הפרסומת</span>
                     </label>
-                    <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה">
+                    <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה" oninput="calculateRevenue()">
                 </div>
             </div>
 
@@ -78,21 +78,21 @@
                     <label class="block text-sm font-medium">מחיר פרסומת (₪ לאלף חשיפות)
                         <span class="text-xs text-gray-500 block">תעריף לכל אלף צפיות</span>
                     </label>
-                    <input type="number" id="adPrice" class="w-full p-2 border rounded" placeholder="מחיר לאלף חשיפות">
+                    <input type="number" id="adPrice" class="w-full p-2 border rounded" placeholder="מחיר לאלף חשיפות" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">עלות תחזוקה חודשית
                         <span class="text-xs text-gray-500 block">הוצאות תפעול שוטפות</span>
                     </label>
-                    <input type="number" id="maintenanceCost" class="w-full p-2 border rounded" placeholder="עלות תחזוקה">
+                    <input type="number" id="maintenanceCost" class="w-full p-2 border rounded" placeholder="עלות תחזוקה" oninput="calculateRevenue()">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">השקעה ראשונית (עבור מסך אחד)
                         <span class="text-xs text-gray-500 block">עלות רכישת הציוד ההתחלתי</span>
                     </label>
-                    <input type="number" id="initialInvestment" class="w-full p-2 border rounded" placeholder="השקעה ראשונית">
+                    <input type="number" id="initialInvestment" class="w-full p-2 border rounded" placeholder="השקעה ראשונית" oninput="calculateRevenue()">
                 </div>
             </div>
         </div>
@@ -133,17 +133,20 @@
     </div>
 
     <script>
+    let currentChart = null;  // משתנה גלובלי לשמירת הגרף הנוכחי
+
     function calculateRevenue() {
-        const residentsCount = +document.getElementById('residentsCount').value || 0;
-        const passersbyCount = +document.getElementById('passersbyCount').value || 0;
-        const adCount = +document.getElementById('adCount').value || 0;
-        const adDuration = +document.getElementById('adDuration').value || 0;
-        const dailyMovements = +document.getElementById('dailyMovements').value || 0;
-        const adExposureProbability = +document.getElementById('adExposureProbability').value || 0;
-        const adPrice = +document.getElementById('adPrice').value || 0;
-        const maintenanceCost = +document.getElementById('maintenanceCost').value || 0;
-        const initialInvestment = +document.getElementById('initialInvestment').value || 0;
-        const screenCount = +document.getElementById('screenCount').value || 1;
+        // נוודא שכל הערכים חיוביים או 0
+        const residentsCount = Math.max(0, +document.getElementById('residentsCount').value || 0);
+        const passersbyCount = Math.max(0, +document.getElementById('passersbyCount').value || 0);
+        const adCount = Math.max(0, +document.getElementById('adCount').value || 0);
+        const adDuration = Math.max(0, +document.getElementById('adDuration').value || 0);
+        const dailyMovements = Math.max(0, +document.getElementById('dailyMovements').value || 0);
+        const adExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0));
+        const adPrice = Math.max(0, +document.getElementById('adPrice').value || 0);
+        const maintenanceCost = Math.max(0, +document.getElementById('maintenanceCost').value || 0);
+        const initialInvestment = Math.max(0, +document.getElementById('initialInvestment').value || 0);
+        const screenCount = Math.max(1, +document.getElementById('screenCount').value || 1);
 
         const totalPeople = residentsCount + passersbyCount;
         const dailyExposures = totalPeople * dailyMovements * adCount * (adExposureProbability / 100) * screenCount;
@@ -155,6 +158,7 @@
         const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
         const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
+        // עדכון הטקסט
         document.getElementById('dailyExposures').textContent = 
             `חשיפות יומיות: ${dailyExposures.toFixed(2)}`;
         document.getElementById('potentialRevenue').textContent = 
@@ -170,9 +174,16 @@
         document.getElementById('monthlyExposureProbability').textContent = 
             `הסתברות חודשית: ${monthlyExposureProbability.toFixed(2)}%`;
 
-        // יצירת תרשים
+        // ידכון הגרף
         const ctx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(ctx, {
+        
+        // נמחק את הגרף הקיים אם יש
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        // יצירת גרף חדש
+        currentChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['יומי', 'חודשי', 'שנתי'],
