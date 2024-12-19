@@ -42,9 +42,9 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">כניסות/יציאות יומיות
-                        <span class="text-xs text-gray-500 block">כמה פעמים אדם נכנס/יוצא בהבניין ביום בממוצע</span>
+                        <span class="text-xs text-gray-500 block">כמה פעמים אדם נכנס/יוצא בהבניין ביום בממוצע (מינימום 2)</span>
                     </label>
-                    <input type="number" id="dailyMovements" class="w-full p-2 border rounded" placeholder="מספר תנועות">
+                    <input type="number" id="dailyMovements" min="2" class="w-full p-2 border rounded" placeholder="מספר תנועות (מינימום 2)">
                 </div>
             </div>
 
@@ -60,15 +60,8 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium">זמן הצגת פרסומת (שניות)
-                        <span class="text-xs text-gray-500 block">משך זמן תצוגת כל פרסומת</span>
-                    </label>
-                    <input type="number" id="adDuration" class="w-full p-2 border rounded" placeholder="זמן פרסומת">
-                </div>
-
-                <div class="mb-4">
                     <label class="block text-sm font-medium">הסתברות צפייה במסך (%)
-                        <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את המסך</span>
+                        <span class="text-xs text-gray-500 block">סיכו שאדם יראה את המסך</span>
                     </label>
                     <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה">
                 </div>
@@ -123,9 +116,9 @@
             </div>
             <div id="probabilities" class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">הסתברויות חשיפה</h2>
-                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה: -</p>
-                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה: -</p>
-                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה: -</p>
+                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה למודעה ספציפית: -</p>
+                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה למודעה ספציפית: -</p>
+                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה למודעה ספציפית: -</p>
             </div>
         </div>
 
@@ -153,9 +146,9 @@
                 <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
                 <p id="monthlyExpenses" class="mb-1">הוצאות חודשיות: -</p>
                 <p id="monthlyProfit" class="mb-1">רווח חודשי: -</p>
-                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה: -</p>
-                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה: -</p>
-                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה: -</p>
+                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה למודעה ספציפית: -</p>
+                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה למודעה ספציפית: -</p>
+                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה למודעה ספציפית: -</p>
             </div>
 
             <div class="bg-gray-100 p-6 rounded-lg">
@@ -172,7 +165,6 @@
 
     function calculateOptimizationData() {
         const adCount = +document.getElementById('adCount').value;
-        const baseAdDuration = +document.getElementById('adDuration').value;
         const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
         const adPrice = +document.getElementById('adPrice').value;
         const residentsCount = +document.getElementById('residentsCount').value;
@@ -180,32 +172,28 @@
         const dailyMovements = +document.getElementById('dailyMovements').value;
         
         const dataPoints = [];
-        const totalPeople = residentsCount + passersbyCount;
-        const minutesPerDay = 24 * 60;
+        const residentExposures = residentsCount * dailyMovements;
+        const passersbyExposures = passersbyCount * 2;
+        const totalDailyExposures = residentExposures + passersbyExposures;
         
-        // חישוב זבור טווח של 1 עד 30 מודעות
+        // חישוב עבור טווח של 1 עד 30 מודעות
         for (let i = 1; i <= 30; i++) {
-            // חישוב זמן מחזור מלא בדקות
-            const cycleDuration = (baseAdDuration * i) / 60;
-            
-            // חישוב זמני חשיפה ספציפיים
-            const exposuresPerCycle = (minutesPerDay * 60) / (cycleDuration * 60);
-            const peoplePerExposure = totalPeople * dailyMovements;
-            
-            // חישוב הסתברות מתקנת - מתחילה לרדת משמעותית אחרי 5 מודעות
+            // חישוב הסתברות מתוקנת - מתחילה לרדת משמעותית אחרי 5 מודעות
             const optimalAdCount = 5;
             const dropoffRate = 0.2; // קצב הירידה באפקטיביות
             const adjustedProbability = baseExposureProbability * 
                 (i <= optimalAdCount ? 1 : Math.exp(-dropoffRate * (i - optimalAdCount)));
             
-            // חישוב הכנסה פוטנציאלית
-            const potentialDailyExposures = exposuresPerCycle * peoplePerExposure;
-            const actualDailyExposures = potentialDailyExposures * adjustedProbability;
-            const revenuePerAd = (adPrice / 1000) * actualDailyExposures;
+            // חישוב חשיפות פוטנציאליות
+            const potentialDailyExposures = totalDailyExposures;
+            const actualDailyExposures = (potentialDailyExposures * adjustedProbability) / i;
+            // מחלקים את החשיפות בין כל המודעות באופן שווה
+            const exposuresPerAd = actualDailyExposures / i;
+            const revenuePerAd = (adPrice / 1000) * exposuresPerAd;
             
             // חישוב אפקטיביות (הכנסה בפועל)
             const effectiveRevenue = revenuePerAd * i; // הכנסה כוללת מכל המודעות
-            const potentialRevenue = (adPrice / 1000) * potentialDailyExposures * i; // הכנסה ��וטנציאלית ללא ירידה באפקטיביות
+            const potentialRevenue = (adPrice / 1000) * (potentialDailyExposures / i) * i;
             
             dataPoints.push({
                 adCount: i,
@@ -239,7 +227,7 @@
                         fill: true
                     },
                     {
-                        label: 'הכנסה אפקטיבית',
+                        label: 'הכנסה אפקטיבת',
                         data: data.map(d => d.effective),
                         borderColor: '#10B981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -261,7 +249,7 @@
                                 if (context.dataset.label === 'הכנסה פוטנציאלית') {
                                     return `הכנסה פוטנציאלית: ${dataPoint.potential.toFixed(2)}₪`;
                                 } else {
-                                    return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיביות)`;
+                                    return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיבי��ת)`;
                                 }
                             }
                         }
@@ -286,23 +274,15 @@
     }
 
     function calculateExposuresPerPerson() {
-        const baseAdDuration = +document.getElementById('adDuration').value;
         const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
         const dailyMovements = +document.getElementById('dailyMovements').value;
-        const minutesPerDay = 24 * 60;
         
         const dataPoints = [];
         
         // חישוב עבור טווח של 1 עד 30 מודעות
         for (let i = 1; i <= 30; i++) {
-            // חישוב זמן מחזור מלא בדקות
-            const cycleDuration = (baseAdDuration * i) / 60;
-            
-            // חישוב מספר מחזורים ביום
-            const cyclesPerDay = minutesPerDay / cycleDuration;
-            
             // חישוב חשיפות פוטנציאליות יומיות לאדם
-            const potentialDailyExposures = cyclesPerDay * dailyMovements;
+            const potentialDailyExposures = dailyMovements;
             
             // חישוב חשיפות בפועל (עם התחשבות בהסתברות)
             const optimalAdCount = 5;
@@ -310,7 +290,8 @@
             const adjustedProbability = baseExposureProbability * 
                 (i <= optimalAdCount ? 1 : Math.exp(-dropoffRate * (i - optimalAdCount)));
             
-            const actualDailyExposures = potentialDailyExposures * adjustedProbability;
+            // מחלקים את ההסתברות לצפייה בין כל המודעות
+            const actualDailyExposures = (potentialDailyExposures * adjustedProbability) / i;
             
             dataPoints.push({
                 adCount: i,
@@ -343,7 +324,7 @@
                         fill: true
                     },
                     {
-                        label: 'חשיפות צפויות בפועל',
+                        label: 'חשיפות צפוי��ת בפועל',
                         data: data.map(d => d.actualMonthly),
                         borderColor: '#EC4899',
                         backgroundColor: 'rgba(236, 72, 153, 0.1)',
@@ -394,36 +375,29 @@
         const screenCount = Math.max(1, +document.getElementById('screenCount').value || 1);
         const residentsCount = Math.max(0, +document.getElementById('residentsCount').value || 0);
         const passersbyCount = Math.max(0, +document.getElementById('passersbyCount').value || 0);
-        const dailyMovements = Math.max(1, +document.getElementById('dailyMovements').value || 1);
+        const dailyMovements = Math.max(2, +document.getElementById('dailyMovements').value || 2);
         const adCount = Math.max(1, +document.getElementById('adCount').value || 1);
-        const adDuration = Math.max(1, +document.getElementById('adDuration').value || 1);
         const adExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0));
         const adPrice = Math.max(0, +document.getElementById('adPrice').value || 0);
         const maintenanceCost = Math.max(0, +document.getElementById('maintenanceCost').value || 0);
         const initialInvestment = Math.max(0, +document.getElementById('initialInvestment').value || 0);
         
-        // חישוב זמן מחזור מלא בדקות
-        const cycleDuration = (adDuration * adCount) / 60; 
-        
-        // בישוב מספר אנשים פוטנציאלים וחשיפות
-        const totalPeople = (residentsCount + passersbyCount) * screenCount;
-        const minutesPerDay = 24 * 60;
-        
-        // חישוב זמני חשיפה ספציפיים
-        const exposuresPerCycle = (minutesPerDay * 60) / (cycleDuration * 60);
-        const peoplePerExposure = totalPeople * dailyMovements;
-        
-        // חישוב חשיפות פוטנציאליות
-        const potentialDailyExposures = exposuresPerCycle * peoplePerExposure;
+        // חישוב זשיפות פוטנציאליות - מפרידים בין דיירים לעוברי אורח
+        const residentExposures = residentsCount * dailyMovements * screenCount; // דיירים עם מספר כניסות/יציאות מלא
+        const passersbyExposures = passersbyCount * 2 * screenCount; // עוברי אורח עם 2 חשיפות בלבד (כניסה ויציאה)
+        const potentialDailyExposures = residentExposures + passersbyExposures;
         
         // חישוב חשיפות יומיות בפועל
-        const actualDailyExposures = potentialDailyExposures * (adExposureProbability / 100);
+        const actualDailyExposures = residentExposures * (adExposureProbability / 100);
         
         // חישוב חשיפות פוטנציאליות לאדם
-        const potentialDailyExposuresPerPerson = Math.min(exposuresPerCycle * dailyMovements, 24 * 60);
-        
+        const totalPeople = (residentsCount + passersbyCount) * screenCount;
+        const averageExposuresPerPerson = potentialDailyExposures / totalPeople;
+
         // חישוב הכנסות
-        const dailyRevenue = actualDailyExposures * (adPrice / 1000);
+        // מחלקים את החשיפות בין כל המודעות באופן שווה
+        const exposuresPerAd = actualDailyExposures / adCount;
+        const dailyRevenue = exposuresPerAd * (adPrice / 1000) * adCount;
         const monthlyRevenue = dailyRevenue * 30;
         const annualRevenue = dailyRevenue * 365;
 
@@ -433,8 +407,11 @@
         const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
         // חישוב הסתברויות
-        const singleAdProbability = adExposureProbability / 100 / adCount;
-        const dailyExposureProbability = Math.min(100, singleAdProbability * dailyMovements * (adDuration / 60) * 100);
+        // הסתברות לראות מודעה כפציפית במעבר אחד
+        const singlePassProbability = adExposureProbability / 100 / adCount; // מחלקים את ההסתברות בין כל המודעות
+        // הסתברות לראות מודעה ספציפית במהלך יום (רק עבור דיירים)
+        const dailyExposureProbability = Math.min(100, singlePassProbability * dailyMovements * 100);
+        // הסתברות מצטברת לשבוע וחודש
         const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
         const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
@@ -442,7 +419,7 @@
         document.getElementById('dailyExposures').textContent = 
             `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
         document.getElementById('dailyExposuresPerPerson').textContent = 
-            `חשיפות פוטנציאליות יומיות לאדם: ${potentialDailyExposuresPerPerson.toFixed(0)}`;
+            `חשיפות פוטנציאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
         document.getElementById('potentialRevenue').textContent = 
             `הכנסה פוטנציאלית יומית: ₪${dailyRevenue.toFixed(2)}`;
         document.getElementById('monthlyRevenue').textContent = 
@@ -454,11 +431,11 @@
         document.getElementById('monthlyProfit').textContent = 
             `רווח חודשי: ₪${monthlyProfit.toFixed(2)}`;
         document.getElementById('dailyExposureProbability').textContent = 
-            `הסתברות יומית לחשיפה: ${dailyExposureProbability.toFixed(2)}%`;
+            `הסתברות יומית לחשיפה למודעה ספציפית: ${dailyExposureProbability.toFixed(2)}%`;
         document.getElementById('weeklyExposureProbability').textContent = 
-            `הסתברות שבועית לחשיפה: ${weeklyExposureProbability.toFixed(2)}%`;
+            `הסתברות שבועית לחשיפה למודעה ספציפית: ${weeklyExposureProbability.toFixed(2)}%`;
         document.getElementById('monthlyExposureProbability').textContent = 
-            `הסתברות חודשית לחשיפה: ${monthlyExposureProbability.toFixed(2)}%`;
+            `הסתברות חודשית לחשיפה למודעה ספציפית: ${monthlyExposureProbability.toFixed(2)}%`;
 
         // עדכון גרף
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -510,9 +487,8 @@
         document.getElementById('screenCount').value = 1;
         document.getElementById('residentsCount').value = 60; // 20 דירות, 3 אנשים לדירה
         document.getElementById('passersbyCount').value = 30;
-        document.getElementById('dailyMovements').value = 3.5;
+        document.getElementById('dailyMovements').value = 4;  // מינימום 2 (כניסה ויציאה)
         document.getElementById('adCount').value = 10;
-        document.getElementById('adDuration').value = 15;
         document.getElementById('adExposureProbability').value = 100;
         document.getElementById('adPrice').value = 120;
         document.getElementById('maintenanceCost').value = 300;
