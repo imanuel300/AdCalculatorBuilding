@@ -41,6 +41,53 @@
     }    ```
     שיטה זו מחשבת את מספר המודעות האופטימלי כך שנצפה לראות את כולן בתקופה נתונה.
 
+#### פונקציות החישוב
+
+המערכת משתמשת בשתי פונקציות מרכזיות המבוססות על נוסחת אספן הקלפים:
+
+1. **חישוב מספר מודעות אופטימלי** (`calculateOptimalAdsCount`):
+```javascript
+function calculateOptimalAdsCount(movements, days = 30) {
+    const attempts = movements * days;
+    const baseProb = +document.getElementById('adExposureProbability').value / 100;
+    const EULER_GAMMA = 0.5772156649;
+    
+    // פותרת את המשוואה: n = (attempts * baseProb)/(ln(n) + γ)
+    let n = 1;
+    let prevN = 0;
+    while (Math.abs(n - prevN) > 0.0001) {
+        prevN = n;
+        n = (attempts * baseProb) / (Math.log(prevN) + EULER_GAMMA);
+    }
+    return Math.floor(n);
+}
+```
+- מטרה: מחשבת את **מספר המודעות האופטימלי** שכדאי להציג
+- תוצאה: מספר שלם המייצג את מספר המודעות המומלץ
+- שימוש: משמשת להמלצה על מספר המודעות האידיאלי
+
+2. **חישוב הסתברות לצפייה בכל המודעות** (`calculateCollectorProbability`):
+```javascript
+function calculateCollectorProbability(movements, adCount, days = 30) {
+    const attempts = movements * days;
+    const EULER_GAMMA = 0.5772156649;
+    const baseProb = +document.getElementById('adExposureProbability').value / 100;
+    
+    // מספר הניסיונות האופטימלי הדרוש
+    const optimalAttempts = adCount * (Math.log(adCount) + EULER_GAMMA);
+    
+    // ההסתברות היא היחס בין מספר הניסיונות בפועל למספר האופטימלי
+    return Math.min(100, (attempts * baseProb / optimalAttempts) * 100);
+}
+```
+- מטרה: מחשבת את **ההסתברות לראות את כל המודעות** עבור מספר מודעות נתון
+- תוצאה: אחוז (0-100) המייצג את ההסתברות לראות את כל המודעות
+- שימוש: משמשת להצגת ההסתברויות היומיות/שבועיות/חודשיות
+
+שתי הפונקציות מבוססות על אותה תיאוריה (בעיית אספן הקלפים) אבל משמשות למטרות שונות:
+- `calculateOptimalAdsCount` עונה על השאלה "כמה מודעות כדאי להציג?"
+- `calculateCollectorProbability` עונה על השאלה "מה הסיכוי לראות את כל המודעות שבחרנו להציג?"
+
 #### ההבדל בין השיטות
 
 1. **הסתברות לראות את כל המודעות**:

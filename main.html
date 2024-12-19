@@ -163,6 +163,7 @@
 
     function calculateOptimalAdsCount(movements, days = 30) {
         const attempts = movements * days;
+        const baseProb = +document.getElementById('adExposureProbability').value / 100;
         const EULER_GAMMA = 0.5772156649;
         
         let n = 1;
@@ -170,7 +171,7 @@
         
         while (Math.abs(n - prevN) > 0.0001) {
             prevN = n;
-            n = attempts / (Math.log(prevN) + EULER_GAMMA);
+            n = (attempts * baseProb) / (Math.log(prevN) + EULER_GAMMA);
         }
         
         return Math.floor(n);
@@ -179,17 +180,17 @@
     function calculateCollectorProbability(movements, adCount, days = 30) {
         const attempts = movements * days;
         const EULER_GAMMA = 0.5772156649;
+        const baseProb = +document.getElementById('adExposureProbability').value / 100;
         
         // מספר הניסיונות האופטימלי הדרוש לאיסוף כל המודעות
         const optimalAttempts = adCount * (Math.log(adCount) + EULER_GAMMA);
         
         // ההסתברות היא היחס בין מספר הניסיונות שיש לנו למספר הניסיונות הדרוש
-        return Math.min(100, (attempts / optimalAttempts) * 100);
+        return Math.min(100, (attempts * baseProb / optimalAttempts) * 100);
     }
 
     function calculateMaxAds() {
         const dailyMovements = Math.max(2, +document.getElementById('dailyMovements').value || 2);
-        const baseExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0)) / 100;
         
         // חישוב מספר המודעות האופטימלי לפי נוסחת אספן הקלפים
         const optimalAdsCount = calculateOptimalAdsCount(dailyMovements);
@@ -223,7 +224,7 @@
         const averageExposuresPerPerson = potentialDailyExposures / totalPeople;
 
         // חישוב הכנסות
-        // מחלקים את החשיפות בין כל המודעות באופן שוו��
+        // מחלקים את החשיפות בין כל המודעות באופן שוו
         const exposuresPerAd = actualDailyExposures / adCount;
         const dailyRevenue = exposuresPerAd * (adPrice / 1000) * adCount;
         const monthlyRevenue = dailyRevenue * 30;
