@@ -26,16 +26,19 @@
         
         <div class="text-center mb-6">
             <button onclick="showTab('main')" 
+                    href="#main"
                     id="mainTab"
                     class="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all font-bold mx-2">
                 מחשבון הכנסות מפרסום
             </button>
             <button onclick="showTab('adEfficiency')" 
+                    href="#adEfficiency"
                     id="adEfficiencyTab"
                     class="bg-gray-500 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all font-bold mx-2">
                 חישוב יעילות הפרסום
             </button>
             <button onclick="showTab('adPrice')" 
+                    href="#adPrice"
                     id="adPriceTab"
                     class="bg-gray-500 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all font-bold mx-2">
                 השוואת מחירי פרסום
@@ -84,6 +87,14 @@
             }
         }
 
+        // בדיקת האש בטעינה ראשונית
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1); // מסיר את ה-# מתחילת ההאש
+            if (hash) {
+                showTab(hash);
+            }
+        });
+
         function showTab(tab) {
             const mainContent = document.getElementById('mainContent');
             const adEfficiencyContent = document.getElementById('adEfficiencyContent');
@@ -91,6 +102,9 @@
             const mainTab = document.getElementById('mainTab');
             const adEfficiencyTab = document.getElementById('adEfficiencyTab');
             const adPriceTab = document.getElementById('adPriceTab');
+            
+            // עדכון ההאש ב-URL
+            window.location.hash = tab;
             
             if (tab === 'main') {
                 mainTab.classList.replace('bg-gray-500', 'bg-blue-500');
