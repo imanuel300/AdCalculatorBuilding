@@ -94,21 +94,18 @@
             </div>
         </div> 
 
-        <div class="text-center mt-6 space-x-4">
-            <button onclick="calculateRevenue()" class="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 transition-all font-bold">
-                חשב הכנסות
-            </button>
-            <button onclick="fillDummyData()" class="bg-gray-500 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition-all font-bold">
-                הכנס נתוני דמה
+        <div class="absolute top-4 left-4">
+            <button onclick="fillDummyData()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-all">
+                איפוס
             </button>
         </div>
 
         <div class="mt-8 grid md:grid-cols-2 gap-6">
             <div id="results" class="bg-gray-100 p-6 rounded-lg">
-                <h2 class="font-bold text-xl mb-4">תוצאות כפפיות</h2>
+                <h2 class="font-bold text-xl mb-4">תוצאות כלכליות</h2>
                 <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
                 <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
-                <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
+                <p id="potentialRevenue" class="mb-1">הכנסה פו��נציאלית יומית: -</p>
                 <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
                 <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
                 <p id="monthlyExpenses" class="mb-1">הוצאות חודשיות: -</p>
@@ -247,9 +244,9 @@
                             label: function(context) {
                                 const dataPoint = data[context.dataIndex];
                                 if (context.dataset.label === 'הכנסה פוטנציאלית') {
-                                    return `הכנסה פוטנציאלית: ${dataPoint.potential.toFixed(2)}₪`;
+                                    return `הכנסה פוטנציאלי��: ${dataPoint.potential.toFixed(2)}₪`;
                                 } else {
-                                    return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיבי��ת)`;
+                                    return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיביות)`;
                                 }
                             }
                         }
@@ -324,7 +321,7 @@
                         fill: true
                     },
                     {
-                        label: 'חשיפות צפוי��ת בפועל',
+                        label: 'חשיפות צפויות בפועל',
                         data: data.map(d => d.actualMonthly),
                         borderColor: '#EC4899',
                         backgroundColor: 'rgba(236, 72, 153, 0.1)',
@@ -415,11 +412,11 @@
         const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
         const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
-        // עדכון תצוגה
+        // עדכון תצו��ה
         document.getElementById('dailyExposures').textContent = 
             `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
         document.getElementById('dailyExposuresPerPerson').textContent = 
-            `חשיפות פוטנציאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
+            `חשיפות פוטנצאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
         document.getElementById('potentialRevenue').textContent = 
             `הכנסה פוטנציאלית יומית: ₪${dailyRevenue.toFixed(2)}`;
         document.getElementById('monthlyRevenue').textContent = 
@@ -488,7 +485,7 @@
         document.getElementById('residentsCount').value = 60; // 20 דירות, 3 אנשים לדירה
         document.getElementById('passersbyCount').value = 30;
         document.getElementById('dailyMovements').value = 4;  // מינימום 2 (כניסה ויציאה)
-        document.getElementById('adCount').value = 10;
+        document.getElementById('adCount').value = 30;
         document.getElementById('adExposureProbability').value = 100;
         document.getElementById('adPrice').value = 120;
         document.getElementById('maintenanceCost').value = 300;
