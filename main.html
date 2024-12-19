@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מחשבון הכנסות מפרסום מתקדם</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen p-8">
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-blue-700 mb-8">מחשבון הכנסות מפרסום מתקדם</h1>
+        
+        <!-- שדה מספר מסכים -->
+        <div class="bg-yellow-50 p-6 rounded-lg mb-6">
+            <h2 class="font-bold text-xl mb-4 text-yellow-600">מספר מסכים כולל</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium">כמות מסכים
+                    <span class="text-xs text-gray-500 block">מספר המסכים הכולל (מסך אחד לכל בניין)</span>
+                </label>
+                <input type="number" id="screenCount" class="w-full p-2 border rounded" placeholder="כמות מסכים">
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- עמודה ראשונה: פרמטרים בסיסיים -->
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h2 class="font-bold text-xl mb-4 text-blue-600">נתוני בניין בודד</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">מספר דיירים בבניין
+                        <span class="text-xs text-gray-500 block">כמה אנשים גרים/עובדים בבניין בודד</span>
+                    </label>
+                    <input type="number" id="residentsCount" class="w-full p-2 border rounded" placeholder="מספר דיירים">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">עוברי אורח מזדמנים
+                        <span class="text-xs text-gray-500 block">מספר אנשים שעוברים ליד בניין בודד ביום</span>
+                    </label>
+                    <input type="number" id="passersbyCount" class="w-full p-2 border rounded" placeholder="מספר עוברי אורח">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">כניסות/יציאות יומיות
+                        <span class="text-xs text-gray-500 block">כמה פעמים אדם נכנס/יוצא בהבניין ביום בממוצע</span>
+                    </label>
+                    <input type="number" id="dailyMovements" class="w-full p-2 border rounded" placeholder="מספר תנועות">
+                </div>
+            </div>
+
+            <!-- עמודה שנייה: פרמטרי פרסום -->
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h2 class="font-bold text-xl mb-4 text-green-600">פרמטרי פרסום</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">מספר פרסומות למסך
+                        <span class="text-xs text-gray-500 block">כמה פרסומות יוצגו סך הכל</span>
+                    </label>
+                    <input type="number" id="adCount" class="w-full p-2 border rounded" placeholder="מספר פרסומות">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">זמן הצגת פרסומת (שניות)
+                        <span class="text-xs text-gray-500 block">משך זמן תצוגת כל פרסומת</span>
+                    </label>
+                    <input type="number" id="adDuration" class="w-full p-2 border rounded" placeholder="זמן פרסומת">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">הסתברות צפייה במסך (%)
+                        <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את המסך</span>
+                    </label>
+                    <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה">
+                </div>
+            </div>
+
+            <!-- עמודה שלישית: פרמטרים כלכליים -->
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h2 class="font-bold text-xl mb-4 text-purple-600">פרמטרים כלכליים</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">מחיר פרסומת (₪ לאלף חשיפות)
+                        <span class="text-xs text-gray-500 block">תעריף לכל אלף צפיות</span>
+                    </label>
+                    <input type="number" id="adPrice" class="w-full p-2 border rounded" placeholder="מחיר לאלף חשיפות">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">עלות תחזוקה חודשית
+                        <span class="text-xs text-gray-500 block">הוצאות תפעול שוטפות</span>
+                    </label>
+                    <input type="number" id="maintenanceCost" class="w-full p-2 border rounded" placeholder="עלות תחזוקה">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">השקעה ראשונית (עבור מסך אחד)
+                        <span class="text-xs text-gray-500 block">עלות רכישת הציוד ההתחלתי</span>
+                    </label>
+                    <input type="number" id="initialInvestment" class="w-full p-2 border rounded" placeholder="השקעה ראשונית">
+                </div>
+            </div>
+        </div> 
+
+        <div class="text-center mt-6 space-x-4">
+            <button onclick="calculateRevenue()" class="bg-blue-500 text-white px-8 py-3 rounded-full hover:bg-blue-600 transition-all font-bold">
+                חשב הכנסות
+            </button>
+            <button onclick="fillDummyData()" class="bg-gray-500 text-white px-8 py-3 rounded-full hover:bg-gray-600 transition-all font-bold">
+                הכנס נתוני דמה
+            </button>
+        </div>
+
+        <div class="mt-8 grid md:grid-cols-2 gap-6">
+            <div id="results" class="bg-gray-100 p-6 rounded-lg">
+                <h2 class="font-bold text-xl mb-4">תוצאות כפיות</h2>
+                <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
+                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
+                <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
+                <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
+                <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
+                <p id="monthlyExpenses" class="mb-1">הוצאות חודשיות: -</p>
+                <p id="monthlyProfit" class="mb-1">רווח חודשי: -</p>
+                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה: -</p>
+                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה: -</p>
+                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה: -</p>
+            </div>
+
+            <div class="bg-gray-100 p-6 rounded-lg">
+                <h2 class="font-bold text-xl mb-4">תרשים הכנסות</h2>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentChart = null;
+
+    function calculateRevenue() {
+        // קבלת נתונים
+        const screenCount = Math.max(1, +document.getElementById('screenCount').value || 1);
+        const residentsCount = Math.max(0, +document.getElementById('residentsCount').value || 0);
+        const passersbyCount = Math.max(0, +document.getElementById('passersbyCount').value || 0);
+        const dailyMovements = Math.max(1, +document.getElementById('dailyMovements').value || 1);
+        const adCount = Math.max(1, +document.getElementById('adCount').value || 1);
+        const adDuration = Math.max(1, +document.getElementById('adDuration').value || 1);
+        
+        // חישוב זמן מחזור מלא בדקות
+        const cycleDuration = (adDuration * adCount) / 60; 
+        
+        // בדוק אם השדה קיים לפני הגישה אליו
+        const adExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0));
+        const adPrice = Math.max(0, +document.getElementById('adPrice').value || 0);
+        const maintenanceCost = Math.max(0, +document.getElementById('maintenanceCost').value || 0);
+        const initialInvestment = Math.max(0, +document.getElementById('initialInvestment').value || 0);
+
+        // חישוב מספר אנשים פוטנציאלים וחשיפות
+        const totalPeople = residentsCount + passersbyCount;
+        const minutesPerDay = 24 * 60;
+        
+        // חישוב זמני חשיפה ספציפיים
+        const exposuresPerCycle = (minutesPerDay * 60) / (cycleDuration * 60);
+        const peoplePerExposure = totalPeople * dailyMovements;
+        
+        // חישוב חשיפות פוטנציאליות
+        const potentialDailyExposures = exposuresPerCycle * peoplePerExposure * screenCount;
+
+        // חישוב חשיפות יומיות בפועל
+        const actualDailyExposures = potentialDailyExposures * (adExposureProbability / 100);
+
+        // חישוב חשיפות פוטנציאליות לאדם
+        const potentialDailyExposuresPerPerson = potentialDailyExposures / totalPeople;
+
+        // חישוב הכנסות
+        const dailyRevenue = actualDailyExposures * (adPrice / 1000);
+        const monthlyRevenue = dailyRevenue * 30;
+        const annualRevenue = dailyRevenue * 365;
+
+        // חישוב הוצאות
+        const monthlyInvestmentCost = (initialInvestment * screenCount) / 12;
+        const monthlyExpenses = maintenanceCost + monthlyInvestmentCost;
+        const monthlyProfit = monthlyRevenue - monthlyExpenses;
+
+        // חישוב הסתברויות
+        const singleAdProbability = adExposureProbability / 100 / adCount;
+        const dailyExposureProbability = Math.min(100, singleAdProbability * dailyMovements * (adDuration / 60) * 100);
+        const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
+        const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
+
+        // עדכון תצוגה
+        document.getElementById('dailyExposures').textContent = 
+            `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
+        document.getElementById('dailyExposuresPerPerson').textContent = 
+            `חשיפות פוטנציאליות יומיות לאדם: ${potentialDailyExposuresPerPerson.toFixed(0)}`;
+        document.getElementById('potentialRevenue').textContent = 
+            `הכנסה פוטנציאלית יומית: ₪${dailyRevenue.toFixed(2)}`;
+        document.getElementById('monthlyRevenue').textContent = 
+            `הכנסה חודשית משוערת: ₪${monthlyRevenue.toFixed(2)}`;
+        document.getElementById('annualRevenue').textContent = 
+            `הכנסה שנתית משוערת: ₪${annualRevenue.toFixed(2)}`;
+        document.getElementById('monthlyExpenses').textContent = 
+            `הוצאות חודשיות: ₪${monthlyExpenses.toFixed(2)}`;
+        document.getElementById('monthlyProfit').textContent = 
+            `רווח חודשי: ₪${monthlyProfit.toFixed(2)}`;
+        document.getElementById('dailyExposureProbability').textContent = 
+            `הסתברות יומית לחשיפה: ${dailyExposureProbability.toFixed(2)}%`;
+        document.getElementById('weeklyExposureProbability').textContent = 
+            `הסתברות שבועית לחשיפה: ${weeklyExposureProbability.toFixed(2)}%`;
+        document.getElementById('monthlyExposureProbability').textContent = 
+            `הסתברות חודשית לחשיפה: ${monthlyExposureProbability.toFixed(2)}%`;
+
+        // עדכון גרף
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        currentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['יומי', 'חודשי', 'שנתי'],
+                datasets: [
+                    {
+                        label: 'הכנסות',
+                        data: [dailyRevenue, monthlyRevenue, annualRevenue],
+                        backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6']
+                    },
+                    {
+                        label: 'הוצאות',
+                        data: [
+                            dailyRevenue / 30, 
+                            monthlyExpenses, 
+                            monthlyExpenses * 12
+                        ],
+                        backgroundColor: ['#EF4444', '#F43F5E', '#9D174D']
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'סכום (₪)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function fillDummyData() {
+        document.getElementById('screenCount').value = 1;
+        document.getElementById('residentsCount').value = 60; // 20 דירות, 3 אנשים לדירה
+        document.getElementById('passersbyCount').value = 30;
+        document.getElementById('dailyMovements').value = 2;
+        document.getElementById('adCount').value = 10;
+        document.getElementById('adDuration').value = 15;
+        document.getElementById('adExposureProbability').value = 40;
+        document.getElementById('adPrice').value = 120;
+        document.getElementById('maintenanceCost').value = 300;
+        document.getElementById('initialInvestment').value = 5000;
+
+        calculateRevenue();
+    }
+
+    // הוספת אירוע טעינה ראשונית
+    window.addEventListener('load', fillDummyData);
+
+    // הוספת מאזיני אירועים לכל שדה
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', calculateRevenue);
+        });
+    </script>
+</body>
+</html> 

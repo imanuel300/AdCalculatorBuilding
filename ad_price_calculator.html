@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>מחשבון השוואת מחירי פרסום</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen p-8">
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-blue-700 mb-8">מחשבון השוואת מחירי פרסום</h1>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="space-y-6">
+                <!-- מדיה מסורתית -->
+                <div class="bg-blue-50 p-6 rounded-lg">
+                    <h2 class="font-bold text-xl mb-4 text-blue-600">מדיה מסורתית</h2>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <label class="block text-sm font-medium">אמצעי פרסום</label>
+                        <label class="block text-sm font-medium">מחיר לפרסום</label>
+                        <div class="grid grid-cols-4 gap-1">
+                            <label class="col-span-3 text-sm font-medium">כמות חשיפה</label>
+                            <label class="text-sm font-medium text-center">מחיר לחשיפה</label>
+                        </div>
+                    </div>
+
+                    <!-- עיתון -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">עיתון יומי (עמוד פנימי)</div>
+                        <input type="number" id="newspaperPrice" value="3000" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="newspaperReach" value="100000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="newspaperCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">0.03₪</div>
+                        </div>
+                    </div>
+
+                    <!-- רדיו -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">רדיו (ג'ינגל 30 שניות)</div>
+                        <input type="number" id="radioPrice" value="1500" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="radioReach" value="50000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="radioCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">0.03₪</div>
+                        </div>
+                    </div>
+
+                    <!-- שלטי חוצות -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">שלט חוצות (חודש)</div>
+                        <input type="number" id="billboardPrice" value="5000" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="billboardReach" value="200000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="billboardCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">25₪</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- מדיה דיגיטלית -->
+                <div class="bg-green-50 p-6 rounded-lg">
+                    <h2 class="font-bold text-xl mb-4 text-green-600">מדיה דיגיטלית</h2>
+                    
+                    <!-- פייסבוק -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">קמפיין פייסבוק (שבוע)</div>
+                        <input type="number" id="facebookPrice" value="2000" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="facebookReach" value="150000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="facebookCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">13.3₪</div>
+                        </div>
+                    </div>
+
+                    <!-- גוגל -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">קמפיין גוגל (שבוע)</div>
+                        <input type="number" id="googlePrice" value="2500" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="googleReach" value="100000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="googleCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">25₪</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- מדיה מקומית -->
+                <div class="bg-purple-50 p-6 rounded-lg">
+                    <h2 class="font-bold text-xl mb-4 text-purple-600">מדיה מקומית</h2>
+                    
+                    <!-- מסכי בניינים -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">מסכי בניינים (חודש)</div>
+                        <input type="number" id="screenPrice" value="1000" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="screenReach" value="30000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="screenCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">33.3₪</div>
+                        </div>
+                    </div>
+
+                    <!-- עלון מקומי -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-sm font-medium">עלון שכונתי (שבועי)</div>
+                        <input type="number" id="localPrice" value="500" class="w-full p-2 border rounded" onchange="calculateCosts()">
+                        <div class="flex gap-2">
+                            <input type="number" id="localReach" value="5000" class="w-3/4 p-2 border rounded" onchange="calculateCosts()">
+                            <div id="localCPM" class="w-1/4 p-2 bg-gray-100 rounded text-center text-sm">100₪</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <canvas id="costChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChart = null;
+
+        function calculateCPM(price, reach) {
+            return price / reach;
+        }
+
+        function calculateCosts() {
+            const mediaTypes = [
+                { name: 'עיתון', price: 'newspaperPrice', reach: 'newspaperReach', cpm: 'newspaperCPM' },
+                { name: 'רדיו', price: 'radioPrice', reach: 'radioReach', cpm: 'radioCPM' },
+                { name: 'שלטי חוצות', price: 'billboardPrice', reach: 'billboardReach', cpm: 'billboardCPM' },
+                { name: 'פייסבוק', price: 'facebookPrice', reach: 'facebookReach', cpm: 'facebookCPM' },
+                { name: 'גוגל', price: 'googlePrice', reach: 'googleReach', cpm: 'googleCPM' },
+                { name: 'מסכי בניינים', price: 'screenPrice', reach: 'screenReach', cpm: 'screenCPM' },
+                { name: 'עלון מקומי', price: 'localPrice', reach: 'localReach', cpm: 'localCPM' }
+            ];
+
+            const data = mediaTypes.map(type => {
+                const price = +document.getElementById(type.price).value;
+                const reach = +document.getElementById(type.reach).value;
+                const cpm = calculateCPM(price, reach);
+                document.getElementById(type.cpm).textContent = `${cpm.toFixed(3)}₪`;
+                return { name: type.name, cpm };
+            });
+
+            updateChart(data);
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('costChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.name),
+                    datasets: [{
+                        label: 'עלות לאלף חשיפות (₪)',
+                        data: data.map(item => item.cpm),
+                        backgroundColor: [
+                            '#3B82F6',
+                            '#10B981',
+                            '#8B5CF6',
+                            '#F59E0B',
+                            '#EF4444',
+                            '#EC4899',
+                            '#6366F1'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'השוואת עלויות לאלף חשיפות'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'עלות בש"ח'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // חישוב ראשוני בטעינת הדף
+        window.addEventListener('load', calculateCosts);
+    </script>
+</body>
+</html> 
