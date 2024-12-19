@@ -116,9 +116,9 @@
                 <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
                 <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
                 <hr class="my-3">
-                <p id="dailyAllAdsProbability" class="mb-1">הסתברות יומית לחשיפה לכל המודעות: -</p>
-                <p id="weeklyAllAdsProbability" class="mb-1">הסתברות שבועית לחשיפה לכל המודעות: -</p>
-                <p id="monthlyAllAdsProbability" class="mb-1">הסתברות חודשית לחשיפה לכל המודעות: -</p>
+                <p id="dailyAllAdsProbability" class="mb-1">הסתברות יומית לצפייה בכל המודעות: -</p>
+                <p id="weeklyAllAdsProbability" class="mb-1">הסתברות שבועית לצפייה בכל המודעות: -</p>
+                <p id="monthlyAllAdsProbability" class="mb-1">הסתברות חודשית לצפייה בכל המודעות: -</p>
             </div>
         </div>
 
@@ -150,7 +150,7 @@
     function calculateAllAdsProbability(movements, adCount, baseProb, days = 30) {
         // חישוב הסתברות לראות מודעה כלשהי במעבר אחד
         const singlePassProbability = baseProb / adCount;
-        const dailyAttempts = movements * days; // מספר נסיונות כולל
+        const dailyAttempts = movements * days;
         
         // הסתברות לא לראות מודעה ספציפית בכל הנסיונות
         const missProb = Math.pow(1 - singlePassProbability, dailyAttempts);
@@ -162,12 +162,9 @@
     }
 
     function calculateOptimalAdsCount(movements, days = 30) {
-        const attempts = movements * days;  // סך כל הניסיונות בתקופה
-        // נפתור את המשוואה: n = attempts/(ln(n) + γ)
-        // γ הוא קבוע אוילר (0.577...)
+        const attempts = movements * days;
         const EULER_GAMMA = 0.5772156649;
         
-        // פתרון איטרטיבי
         let n = 1;
         let prevN = 0;
         
@@ -179,6 +176,17 @@
         return Math.floor(n);
     }
 
+    function calculateCollectorProbability(movements, adCount, days = 30) {
+        const attempts = movements * days;
+        const EULER_GAMMA = 0.5772156649;
+        
+        // מספר הניסיונות האופטימלי הדרוש לאיסוף כל המודעות
+        const optimalAttempts = adCount * (Math.log(adCount) + EULER_GAMMA);
+        
+        // ההסתברות היא היחס בין מספר הניסיונות שיש לנו למספר הניסיונות הדרוש
+        return Math.min(100, (attempts / optimalAttempts) * 100);
+    }
+
     function calculateMaxAds() {
         const dailyMovements = Math.max(2, +document.getElementById('dailyMovements').value || 2);
         const baseExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0)) / 100;
@@ -186,19 +194,8 @@
         // חישוב מספר המודעות האופטימלי לפי נוסחת אספן הקלפים
         const optimalAdsCount = calculateOptimalAdsCount(dailyMovements);
         
-        let maxAds = 1;
-        while (maxAds < 1000) {
-            const monthlyProbability = calculateAllAdsProbability(dailyMovements, maxAds, baseExposureProbability, 30);
-            
-            if (monthlyProbability < 99.99) {
-                maxAds--;
-                break;
-            }
-            maxAds++;
-        }
-        
         document.getElementById('maxAdsRecommendation').textContent = 
-            `המלצה: עד ${maxAds} מודעות להסתברות חודשית מלאה (${optimalAdsCount} לפי נוסחת אספן הקלפים)`;
+            `המלצה: ${optimalAdsCount} מודעות לפי נוסחת אספן הקלפים`;
     }
 
     function calculateRevenue() {
@@ -238,22 +235,19 @@
         const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
         // חישוב הסתברויות
-        const dailyAllAdsProbability = calculateAllAdsProbability(
+        const dailyAllAdsProbability = calculateCollectorProbability(
             dailyMovements,
             adCount,
-            adExposureProbability / 100,
             1
         );
-        const weeklyAllAdsProbability = calculateAllAdsProbability(
+        const weeklyAllAdsProbability = calculateCollectorProbability(
             dailyMovements,
             adCount,
-            adExposureProbability / 100,
             7
         );
-        const monthlyAllAdsProbability = calculateAllAdsProbability(
+        const monthlyAllAdsProbability = calculateCollectorProbability(
             dailyMovements,
             adCount,
-            adExposureProbability / 100,
             30
         );
 
@@ -274,11 +268,11 @@
         document.getElementById('monthlyProfit').textContent = 
             `רווח חודשי: ₪${monthlyProfit.toFixed(2)}`;
         document.getElementById('dailyAllAdsProbability').textContent = 
-            `הסתברות יומית לחשיפה לכל המודעות: ${dailyAllAdsProbability.toFixed(2)}%`;
+            `הסתברות יומית לצפייה בכל המודעות: ${dailyAllAdsProbability.toFixed(2)}%`;
         document.getElementById('weeklyAllAdsProbability').textContent = 
-            `הסתברות שבועית לחשיפה לכל המודעות: ${weeklyAllAdsProbability.toFixed(2)}%`;
+            `הסתברות שבועית לצפייה בכל המודעות: ${weeklyAllAdsProbability.toFixed(2)}%`;
         document.getElementById('monthlyAllAdsProbability').textContent = 
-            `הסתברות חודשית לחשיפה לכל המודעות: ${monthlyAllAdsProbability.toFixed(2)}%`;
+            `הסתברות חודשית לצפייה בכל המודעות: ${monthlyAllAdsProbability.toFixed(2)}%`;
 
         // עדכון גרף
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -331,7 +325,7 @@
         document.getElementById('residentsCount').value = 60; // 20 דירות, 3 אנשים לדירה
         document.getElementById('passersbyCount').value = 30;
         document.getElementById('dailyMovements').value = 4;  // מינימום 2 (כניסה ויציאה)
-        document.getElementById('adCount').value = 20;
+        document.getElementById('adCount').value = 30;
         document.getElementById('adExposureProbability').value = 100;
         document.getElementById('adPrice').value = 30;
         document.getElementById('maintenanceCost').value = 300;
@@ -356,7 +350,7 @@
 
         // חישוב הסתברות מצטברת לאורך החודש
         const cumulativeProbabilities = days.map(day => {
-            return calculateAllAdsProbability(dailyMovements, adCount, baseExposureProbability, day);
+            return calculateCollectorProbability(dailyMovements, adCount, day);
         });
         
         if (monthlyExposuresChart) {
@@ -369,7 +363,7 @@
                 labels: days,
                 datasets: [
                     {
-                        label: 'הסתברות לראות את כל המודעות',
+                        label: 'הסתברות לצפייה בכל המודעות',
                         data: cumulativeProbabilities,
                         borderColor: '#3B82F6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -382,12 +376,12 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'הסתברות מצטברת לראיית כל המודעות'
+                        text: 'הסתברות מצטברת לצפייה בכל המודעות'
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `הסתברות לראות את כל המודעות: ${context.raw.toFixed(1)}%`;
+                                return `הסתברות לצפייה בכל המודעות: ${context.raw.toFixed(1)}%`;
                             }
                         }
                     }
