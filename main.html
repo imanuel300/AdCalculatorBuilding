@@ -6,8 +6,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen p-8">
-    <div class="container">
+<body class="min-h-screen p-8">
+    <div class="container mx-auto">
         <h1 class="text-3xl font-extrabold text-center text-blue-700 mb-8">מחשבון הכנסות מפרסום מתקדם</h1>
         
         <!-- שדה מספר מסכים -->
@@ -105,7 +105,7 @@
                 <h2 class="font-bold text-xl mb-4">תוצאות כלכליות</h2>
                 <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
                 <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
-                <p id="potentialRevenue" class="mb-1">הכנסה פו��נציאלית יומית: -</p>
+                <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
                 <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
                 <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
                 <p id="monthlyExpenses" class="mb-1">הוצאות חודשיות: -</p>
@@ -133,21 +133,7 @@
             </div>
         </div>
 
-        <div class="mt-8 grid md:grid-cols-2 gap-6">
-            <div id="results" class="bg-gray-100 p-6 rounded-lg">
-                <h2 class="font-bold text-xl mb-4">תוצאות כפיות</h2>
-                <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
-                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
-                <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
-                <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
-                <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
-                <p id="monthlyExpenses" class="mb-1">הוצאות חודשיות: -</p>
-                <p id="monthlyProfit" class="mb-1">רווח חודשי: -</p>
-                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה למודעה ספציפית: -</p>
-                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה למודעה ספציפית: -</p>
-                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה למודעה ספציפית: -</p>
-            </div>
-
+        <div class="mt-8">
             <div class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">תרשים הכנסות</h2>
                 <canvas id="revenueChart"></canvas>
@@ -175,15 +161,11 @@
         
         // חישוב עבור טווח של 1 עד 30 מודעות
         for (let i = 1; i <= 30; i++) {
-            // חישוב הסתברות מתוקנת - מתחילה לרדת משמעותית אחרי 5 מודעות
-            const optimalAdCount = 5;
-            const dropoffRate = 0.2; // קצב הירידה באפקטיביות
-            const adjustedProbability = baseExposureProbability * 
-                (i <= optimalAdCount ? 1 : Math.exp(-dropoffRate * (i - optimalAdCount)));
-            
             // חישוב חשיפות פוטנציאליות
             const potentialDailyExposures = totalDailyExposures;
-            const actualDailyExposures = (potentialDailyExposures * adjustedProbability) / i;
+            // חישוב חשיפות בפועל - רק על הדיירים
+            const actualDailyExposures = residentExposures * (baseExposureProbability);
+            
             // מחלקים את החשיפות בין כל המודעות באופן שווה
             const exposuresPerAd = actualDailyExposures / i;
             const revenuePerAd = (adPrice / 1000) * exposuresPerAd;
@@ -196,7 +178,7 @@
                 adCount: i,
                 potential: potentialRevenue,
                 effective: effectiveRevenue,
-                probability: adjustedProbability
+                probability: baseExposureProbability
             });
         }
         
@@ -244,7 +226,7 @@
                             label: function(context) {
                                 const dataPoint = data[context.dataIndex];
                                 if (context.dataset.label === 'הכנסה פוטנציאלית') {
-                                    return `הכנסה פוטנציאלי��: ${dataPoint.potential.toFixed(2)}₪`;
+                                    return `הכנסה פוטנציאליות: ${dataPoint.potential.toFixed(2)}₪`;
                                 } else {
                                     return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיביות)`;
                                 }
@@ -278,7 +260,7 @@
         
         // חישוב עבור טווח של 1 עד 30 מודעות
         for (let i = 1; i <= 30; i++) {
-            // חישוב חשיפות פוטנציאליות יומיות לאדם
+            // חישוב חשיפות פוטנציאליות ימיות לאדם
             const potentialDailyExposures = dailyMovements;
             
             // חישוב חשיפות בפועל (עם התחשבות בהסתברות)
@@ -343,7 +325,7 @@
                                 if (context.dataset.label === 'חשיפות פוטנציאליות בחודש') {
                                     return `חשיפות פוטנציאליות: ${dataPoint.potentialMonthly.toFixed(0)} בחודש`;
                                 } else {
-                                    return `חשיפות צפויות: ${dataPoint.actualMonthly.toFixed(0)} בחודש`;
+                                    return `חשיפות צפוי��ת: ${dataPoint.actualMonthly.toFixed(0)} בחודש`;
                                 }
                             }
                         }
@@ -412,7 +394,7 @@
         const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
         const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
 
-        // עדכון תצו��ה
+        // עדכון תצורה
         document.getElementById('dailyExposures').textContent = 
             `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
         document.getElementById('dailyExposuresPerPerson').textContent = 
@@ -449,7 +431,7 @@
                     {
                         label: 'הכנסות',
                         data: [dailyRevenue, monthlyRevenue, annualRevenue],
-                        backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6']
+                        backgroundColor: '#3B82F6'
                     },
                     {
                         label: 'הוצאות',
@@ -458,7 +440,7 @@
                             monthlyExpenses, 
                             monthlyExpenses * 12
                         ],
-                        backgroundColor: ['#EF4444', '#F43F5E', '#9D174D']
+                        backgroundColor: '#EF4444'
                     }
                 ]
             },
@@ -494,7 +476,7 @@
         calculateRevenue();
     }
 
-    // הוספת אירוע טעינה ראשונית
+    // הוספת אירוע טעינ ראשונית
     window.addEventListener('load', fillDummyData);
 
     // הוספת מאזיני אירועים לכל שדה

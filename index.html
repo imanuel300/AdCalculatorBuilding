@@ -31,12 +31,6 @@
                     class="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-all font-bold mx-2">
                 מחשבון הכנסות מפרסום
             </button>
-            <button onclick="showTab('adEfficiency')" 
-                    href="#adEfficiency"
-                    id="adEfficiencyTab"
-                    class="bg-gray-500 text-white px-6 py-3 rounded-full hover:bg-gray-600 transition-all font-bold mx-2">
-                חישוב יעילות הפרסום
-            </button>
             <button onclick="showTab('adPrice')" 
                     href="#adPrice"
                     id="adPriceTab"
@@ -47,9 +41,6 @@
 
         <div id="mainContent" class="tab-content active">
             <iframe id="mainFrame" src="main.html" onload="setInitialHeight(this)"></iframe>
-        </div>
-        <div id="adEfficiencyContent" class="tab-content">
-            <iframe id="adEfficiencyFrame" src="ad_efficiency.html" onload="setInitialHeight(this)"></iframe>
         </div>
         <div id="adPriceContent" class="tab-content">
             <iframe id="adPriceFrame" src="ad_price_calculator.html" onload="setInitialHeight(this)"></iframe>
@@ -97,10 +88,8 @@
 
         function showTab(tab) {
             const mainContent = document.getElementById('mainContent');
-            const adEfficiencyContent = document.getElementById('adEfficiencyContent');
             const adPriceContent = document.getElementById('adPriceContent');
             const mainTab = document.getElementById('mainTab');
-            const adEfficiencyTab = document.getElementById('adEfficiencyTab');
             const adPriceTab = document.getElementById('adPriceTab');
             
             // עדכון ההאש ב-URL
@@ -109,42 +98,22 @@
             if (tab === 'main') {
                 mainTab.classList.replace('bg-gray-500', 'bg-blue-500');
                 mainTab.classList.replace('hover:bg-gray-600', 'hover:bg-blue-600');
-                adEfficiencyTab.classList.replace('bg-blue-500', 'bg-gray-500');
-                adEfficiencyTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
                 adPriceTab.classList.replace('bg-blue-500', 'bg-gray-500');
                 adPriceTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
                 
                 mainContent.classList.add('active');
-                adEfficiencyContent.classList.remove('active');
                 adPriceContent.classList.remove('active');
                 
                 // מחשבים מחדש את הגובה
                 setTimeout(() => recalculateHeight(mainFrame), 50);
-            } else if (tab === 'adEfficiency') {
-                adEfficiencyTab.classList.replace('bg-gray-500', 'bg-blue-500');
-                adEfficiencyTab.classList.replace('hover:bg-gray-600', 'hover:bg-blue-600');
-                mainTab.classList.replace('bg-blue-500', 'bg-gray-500');
-                mainTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
-                adPriceTab.classList.replace('bg-blue-500', 'bg-gray-500');
-                adPriceTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
-                
-                adEfficiencyContent.classList.add('active');
-                mainContent.classList.remove('active');
-                adPriceContent.classList.remove('active');
-                
-                // מחשבים מחדש את הגובה
-                setTimeout(() => recalculateHeight(adFrame), 50);
             } else if (tab === 'adPrice') {
                 adPriceTab.classList.replace('bg-gray-500', 'bg-blue-500');
                 adPriceTab.classList.replace('hover:bg-gray-600', 'hover:bg-blue-600');
                 mainTab.classList.replace('bg-blue-500', 'bg-gray-500');
                 mainTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
-                adEfficiencyTab.classList.replace('bg-blue-500', 'bg-gray-500');
-                adEfficiencyTab.classList.replace('hover:bg-blue-600', 'hover:bg-gray-600');
                 
                 adPriceContent.classList.add('active');
                 mainContent.classList.remove('active');
-                adEfficiencyContent.classList.remove('active');
                 
                 // מחשבים מחדש את הגובה
                 setTimeout(() => recalculateHeight(adPriceFrame), 50);
