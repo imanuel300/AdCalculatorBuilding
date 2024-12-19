@@ -223,7 +223,7 @@
         const averageExposuresPerPerson = potentialDailyExposures / totalPeople;
 
         // חישוב הכנסות
-        // מחלקים את החשיפות בין כל המודעות באופן שווה
+        // מחלקים את החשיפות בין כל המודעות באופן שוו��
         const exposuresPerAd = actualDailyExposures / adCount;
         const dailyRevenue = exposuresPerAd * (adPrice / 1000) * adCount;
         const monthlyRevenue = dailyRevenue * 30;
@@ -328,8 +328,8 @@
         document.getElementById('adCount').value = 30;
         document.getElementById('adExposureProbability').value = 100;
         document.getElementById('adPrice').value = 30;
-        document.getElementById('maintenanceCost').value = 300;
-        document.getElementById('initialInvestment').value = 5000;
+        document.getElementById('maintenanceCost').value = 100;
+        document.getElementById('initialInvestment').value = 3000;
 
         calculateRevenue();
         calculateMaxAds();
