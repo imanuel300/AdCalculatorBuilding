@@ -55,6 +55,7 @@
                 <div class="mb-4">
                     <label class="block text-sm font-medium">מספר פרסומות למסך
                         <span class="text-xs text-gray-500 block">כמה פרסומות יוצגו סך הכל</span>
+                        <span id="maxAdsRecommendation" class="text-xs text-blue-600 block"></span>
                     </label>
                     <input type="number" id="adCount" class="w-full p-2 border rounded" placeholder="מספר פרסומות">
                 </div>
@@ -103,8 +104,6 @@
         <div class="mt-8 grid md:grid-cols-2 gap-6">
             <div id="results" class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">תוצאות כלכליות</h2>
-                <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
-                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
                 <p id="potentialRevenue" class="mb-1">הכנסה פוטנציאלית יומית: -</p>
                 <p id="monthlyRevenue" class="mb-1">הכנסה חודשית משוערת: -</p>
                 <p id="annualRevenue" class="mb-1">הכנסה שנתית משוערת: -</p>
@@ -113,240 +112,71 @@
             </div>
             <div id="probabilities" class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">הסתברויות חשיפה</h2>
-                <p id="dailyExposureProbability" class="mb-1">הסתברות יומית לחשיפה למודעה ספציפית: -</p>
-                <p id="weeklyExposureProbability" class="mb-1">הסתברות שבועית לחשיפה למודעה ספציפית: -</p>
-                <p id="monthlyExposureProbability" class="mb-1">הסתברות חודשית לחשיפה למודעה ספציפית: -</p>
+                <p id="dailyExposuresPerPerson" class="mb-1">חשיפות פוטנציאליות יומיות לאדם: -</p>
+                <p id="dailyExposures" class="mb-1">חשיפות פוטנציאליות יומיות: - (מתוכן - צפויות)</p>
+                <hr class="my-3">
+                <p id="dailyAllAdsProbability" class="mb-1">הסתברות יומית לחשיפה לכל המודעות: -</p>
+                <p id="weeklyAllAdsProbability" class="mb-1">הסתברות שבועית לחשיפה לכל המודעות: -</p>
+                <p id="monthlyAllAdsProbability" class="mb-1">הסתברות חודשית לחשיפה לכל המודעות: -</p>
             </div>
         </div>
 
-        <div class="mt-8">
-            <div class="bg-gray-100 p-6 rounded-lg">
-                <h2 class="font-bold text-xl mb-4">ניתוח אופטימיזציה</h2>
-                <canvas id="optimizationChart"></canvas>
-            </div>
-        </div>
-
-        <div class="mt-8">
-            <div class="bg-gray-100 p-6 rounded-lg">
-                <h2 class="font-bold text-xl mb-4">ניתוח חשיפות לאדם</h2>
-                <canvas id="exposuresPerPersonChart"></canvas>
-            </div>
-        </div>
-
-        <div class="mt-8">
+        <div class="mt-8 grid md:grid-cols-2 gap-6">
             <div class="bg-gray-100 p-6 rounded-lg">
                 <h2 class="font-bold text-xl mb-4">תרשים הכנסות</h2>
                 <canvas id="revenueChart"></canvas>
+            </div>
+            <div class="bg-gray-100 p-6 rounded-lg">
+                <h2 class="font-bold text-xl mb-4">חשיפות יומיות לאורך החודש</h2>
+                <canvas id="monthlyExposuresChart"></canvas>
             </div>
         </div>
     </div>
 
     <script>
     let currentChart = null;
-    let optimizationChart = null;
-    let exposuresPerPersonChart = null;
+    let monthlyExposuresChart = null;
 
-    function calculateOptimizationData() {
-        const adCount = +document.getElementById('adCount').value;
-        const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
-        const adPrice = +document.getElementById('adPrice').value;
-        const residentsCount = +document.getElementById('residentsCount').value;
-        const passersbyCount = +document.getElementById('passersbyCount').value;
-        const dailyMovements = +document.getElementById('dailyMovements').value;
-        
-        const dataPoints = [];
-        const residentExposures = residentsCount * dailyMovements;
-        const passersbyExposures = passersbyCount * 2;
-        const totalDailyExposures = residentExposures + passersbyExposures;
-        
-        // חישוב עבור טווח של 1 עד 30 מודעות
-        for (let i = 1; i <= 30; i++) {
-            // חישוב חשיפות פוטנציאליות
-            const potentialDailyExposures = totalDailyExposures;
-            // חישוב חשיפות בפועל - רק על הדיירים
-            const actualDailyExposures = residentExposures * (baseExposureProbability);
-            
-            // מחלקים את החשיפות בין כל המודעות באופן שווה
-            const exposuresPerAd = actualDailyExposures / i;
-            const revenuePerAd = (adPrice / 1000) * exposuresPerAd;
-            
-            // חישוב אפקטיביות (הכנסה בפועל)
-            const effectiveRevenue = revenuePerAd * i; // הכנסה כוללת מכל המודעות
-            const potentialRevenue = (adPrice / 1000) * (potentialDailyExposures / i) * i;
-            
-            dataPoints.push({
-                adCount: i,
-                potential: potentialRevenue,
-                effective: effectiveRevenue,
-                probability: baseExposureProbability
-            });
-        }
-        
-        return dataPoints;
+    function calculateMonthlyProbability(movements, adCount, baseProb, days = 30) {
+        // חישוב הסתברות לראות מודעה ספציפית במעבר אחד
+        const singlePassProbability = baseProb / adCount;
+        // הסתברות יומי לראות מודעה ספציפית
+        const dailyProbability = Math.min(1, singlePassProbability * movements);
+        // הסתברות חצטברת
+        return Math.min(100, (1 - Math.pow(1 - dailyProbability, days)) * 100);
     }
 
-    function updateOptimizationChart() {
-        const data = calculateOptimizationData();
-        const ctx = document.getElementById('optimizationChart').getContext('2d');
+    function calculateAllAdsProbability(movements, adCount, baseProb, days = 30) {
+        // חישוב הסתברות לראות מודעה כלשהי במעבר אחד
+        const singlePassProbability = baseProb / adCount;
+        const dailyAttempts = movements * days; // מספר נסיונות כולל
         
-        if (optimizationChart) {
-            optimizationChart.destroy();
-        }
+        // הסתברות לא לראות מודעה ספציפית בכל הנסיונות
+        const missProb = Math.pow(1 - singlePassProbability, dailyAttempts);
+        
+        // הסתברות לראות את כל המודעות = הסתברות שלא פספסנו אף אחת
+        const seeAllProb = Math.pow(1 - missProb, adCount);
+        
+        return Math.min(100, seeAllProb * 100);
+    }
 
-        optimizationChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.adCount),
-                datasets: [
-                    {
-                        label: 'הכנסה פוטנציאלית',
-                        data: data.map(d => d.potential),
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true
-                    },
-                    {
-                        label: 'הכנסה אפקטיבת',
-                        data: data.map(d => d.effective),
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'השפעת כמות המודעות על ההכנסה היומית'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const dataPoint = data[context.dataIndex];
-                                if (context.dataset.label === 'הכנסה פוטנציאלית') {
-                                    return `הכנסה פוטנציאליות: ${dataPoint.potential.toFixed(2)}₪`;
-                                } else {
-                                    return `הכנסה בפועל: ${dataPoint.effective.toFixed(2)}₪ (${(dataPoint.probability * 100).toFixed(1)}% אפקטיביות)`;
-                                }
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'מספר מודעות'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'הכנסה יומית (₪)'
-                        }
-                    }
-                }
+    function calculateMaxAds() {
+        const dailyMovements = Math.max(2, +document.getElementById('dailyMovements').value || 2);
+        const baseExposureProbability = Math.max(0, Math.min(100, +document.getElementById('adExposureProbability').value || 0)) / 100;
+        
+        let maxAds = 1;
+        while (maxAds < 1000) {
+            const monthlyProbability = calculateAllAdsProbability(dailyMovements, maxAds, baseExposureProbability, 30);
+            
+            if (monthlyProbability < 99.99) {
+                maxAds--;
+                break;
             }
-        });
-    }
-
-    function calculateExposuresPerPerson() {
-        const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
-        const dailyMovements = +document.getElementById('dailyMovements').value;
-        
-        const dataPoints = [];
-        
-        // חישוב עבור טווח של 1 עד 30 מודעות
-        for (let i = 1; i <= 30; i++) {
-            // חישוב חשיפות פוטנציאליות ימיות לאדם
-            const potentialDailyExposures = dailyMovements;
-            
-            // חישוב חשיפות בפועל (עם התחשבות בהסתברות)
-            const optimalAdCount = 5;
-            const dropoffRate = 0.2;
-            const adjustedProbability = baseExposureProbability * 
-                (i <= optimalAdCount ? 1 : Math.exp(-dropoffRate * (i - optimalAdCount)));
-            
-            // מחלקים את ההסתברות לצפייה בין כל המודעות
-            const actualDailyExposures = (potentialDailyExposures * adjustedProbability) / i;
-            
-            dataPoints.push({
-                adCount: i,
-                potentialMonthly: potentialDailyExposures * 30,
-                actualMonthly: actualDailyExposures * 30
-            });
+            maxAds++;
         }
         
-        return dataPoints;
-    }
-
-    function updateExposuresChart() {
-        const data = calculateExposuresPerPerson();
-        const ctx = document.getElementById('exposuresPerPersonChart').getContext('2d');
-        
-        if (exposuresPerPersonChart) {
-            exposuresPerPersonChart.destroy();
-        }
-
-        exposuresPerPersonChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.map(d => d.adCount),
-                datasets: [
-                    {
-                        label: 'חשיפות פוטנציאליות בחודש',
-                        data: data.map(d => d.potentialMonthly),
-                        borderColor: '#8B5CF6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        fill: true
-                    },
-                    {
-                        label: 'חשיפות צפויות בפועל',
-                        data: data.map(d => d.actualMonthly),
-                        borderColor: '#EC4899',
-                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'חשיפות חודשיות ממוצעות לאדם'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const dataPoint = data[context.dataIndex];
-                                if (context.dataset.label === 'חשיפות פוטנציאליות בחודש') {
-                                    return `חשיפות פוטנציאליות: ${dataPoint.potentialMonthly.toFixed(0)} בחודש`;
-                                } else {
-                                    return `חשיפות צפוי��ת: ${dataPoint.actualMonthly.toFixed(0)} בחודש`;
-                                }
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'מספר מודעות'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'מספר חשיפות חודשיות'
-                        }
-                    }
-                }
-            }
-        });
+        document.getElementById('maxAdsRecommendation').textContent = 
+            `המלצה: עד ${maxAds} מודעות להסתברות חודשית מלאה לראיית כל המודעות`;
     }
 
     function calculateRevenue() {
@@ -361,7 +191,7 @@
         const maintenanceCost = Math.max(0, +document.getElementById('maintenanceCost').value || 0);
         const initialInvestment = Math.max(0, +document.getElementById('initialInvestment').value || 0);
         
-        // חישוב זשיפות פוטנציאליות - מפרידים בין דיירים לעוברי אורח
+        // חיש��ב זשיפות פוטנציאליות - מפרידים בין דיירים לעוברי אורח
         const residentExposures = residentsCount * dailyMovements * screenCount; // דיירים עם מספר כניסות/יציאות מלא
         const passersbyExposures = passersbyCount * 2 * screenCount; // עוברי אורח עם 2 חשיפות בלבד (כניסה ויציאה)
         const potentialDailyExposures = residentExposures + passersbyExposures;
@@ -386,19 +216,31 @@
         const monthlyProfit = monthlyRevenue - monthlyExpenses;
 
         // חישוב הסתברויות
-        // הסתברות לראות מודעה כפציפית במעבר אחד
-        const singlePassProbability = adExposureProbability / 100 / adCount; // מחלקים את ההסתברות בין כל המודעות
-        // הסתברות לראות מודעה ספציפית במהלך יום (רק עבור דיירים)
-        const dailyExposureProbability = Math.min(100, singlePassProbability * dailyMovements * 100);
-        // הסתברות מצטברת לשבוע וחודש
-        const weeklyExposureProbability = Math.min(100, dailyExposureProbability * 7);
-        const monthlyExposureProbability = Math.min(100, dailyExposureProbability * 30);
+        const dailyAllAdsProbability = calculateAllAdsProbability(
+            dailyMovements,
+            adCount,
+            adExposureProbability / 100,
+            1
+        );
+        const weeklyAllAdsProbability = calculateAllAdsProbability(
+            dailyMovements,
+            adCount,
+            adExposureProbability / 100,
+            7
+        );
+        const monthlyAllAdsProbability = calculateAllAdsProbability(
+            dailyMovements,
+            adCount,
+            adExposureProbability / 100,
+            30
+        );
 
-        // עדכון תצורה
+        // עדכון תוג
+        document.getElementById('dailyExposuresPerPerson').textContent = 
+            `חשיפות פוטנציאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
         document.getElementById('dailyExposures').textContent = 
             `חשיפות פוטנציאליות יומיות: ${potentialDailyExposures.toFixed(0)} (מתוכן ${actualDailyExposures.toFixed(0)} צפויות)`;
-        document.getElementById('dailyExposuresPerPerson').textContent = 
-            `חשיפות פוטנצאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
+
         document.getElementById('potentialRevenue').textContent = 
             `הכנסה פוטנציאלית יומית: ₪${dailyRevenue.toFixed(2)}`;
         document.getElementById('monthlyRevenue').textContent = 
@@ -409,12 +251,12 @@
             `הוצאות חודשיות: ₪${monthlyExpenses.toFixed(2)}`;
         document.getElementById('monthlyProfit').textContent = 
             `רווח חודשי: ₪${monthlyProfit.toFixed(2)}`;
-        document.getElementById('dailyExposureProbability').textContent = 
-            `הסתברות יומית לחשיפה למודעה ספציפית: ${dailyExposureProbability.toFixed(2)}%`;
-        document.getElementById('weeklyExposureProbability').textContent = 
-            `הסתברות שבועית לחשיפה למודעה ספציפית: ${weeklyExposureProbability.toFixed(2)}%`;
-        document.getElementById('monthlyExposureProbability').textContent = 
-            `הסתברות חודשית לחשיפה למודעה ספציפית: ${monthlyExposureProbability.toFixed(2)}%`;
+        document.getElementById('dailyAllAdsProbability').textContent = 
+            `הסתברות יומית לחשיפה לכל המודעות: ${dailyAllAdsProbability.toFixed(2)}%`;
+        document.getElementById('weeklyAllAdsProbability').textContent = 
+            `הסתברות שבועית לחשיפה לכל המודעות: ${weeklyAllAdsProbability.toFixed(2)}%`;
+        document.getElementById('monthlyAllAdsProbability').textContent = 
+            `הסתברות חודשית לחשיפה לכל המודעות: ${monthlyAllAdsProbability.toFixed(2)}%`;
 
         // עדכון גרף
         const ctx = document.getElementById('revenueChart').getContext('2d');
@@ -426,7 +268,7 @@
         currentChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['יומי', 'חודשי', 'שנתי'],
+                labels: ['יומי', 'חודי', 'שנתי'],
                 datasets: [
                     {
                         label: 'הכנסות',
@@ -458,8 +300,8 @@
             }
         });
 
-        updateOptimizationChart();
-        updateExposuresChart();
+        updateMonthlyExposuresChart();
+        calculateMaxAds();
     }
 
     function fillDummyData() {
@@ -467,13 +309,85 @@
         document.getElementById('residentsCount').value = 60; // 20 דירות, 3 אנשים לדירה
         document.getElementById('passersbyCount').value = 30;
         document.getElementById('dailyMovements').value = 4;  // מינימום 2 (כניסה ויציאה)
-        document.getElementById('adCount').value = 30;
+        document.getElementById('adCount').value = 20;
         document.getElementById('adExposureProbability').value = 100;
-        document.getElementById('adPrice').value = 120;
+        document.getElementById('adPrice').value = 30;
         document.getElementById('maintenanceCost').value = 300;
         document.getElementById('initialInvestment').value = 5000;
 
         calculateRevenue();
+        calculateMaxAds();
+    }
+
+    function updateMonthlyExposuresChart() {
+        const ctx = document.getElementById('monthlyExposuresChart').getContext('2d');
+        const days = Array.from({length: 30}, (_, i) => i + 1);
+        
+        // קבלת נתונים מהחישוב הקיים
+        const dailyMovements = +document.getElementById('dailyMovements').value;
+        const adCount = +document.getElementById('adCount').value;
+        const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
+
+        // חישוב הסתברות לחשיפה למודעה בודדת
+        const singleAdProbability = baseExposureProbability / adCount; // הסתברות בסיסית למודעה בודדת
+        const dailyProbability = Math.min(1, singleAdProbability * dailyMovements); // הסתברות יומית מצטברת
+
+        // חישוב הסתברות מצטברת לאורך החודש
+        const cumulativeProbabilities = days.map(day => {
+            return calculateAllAdsProbability(dailyMovements, adCount, baseExposureProbability, day);
+        });
+        
+        if (monthlyExposuresChart) {
+            monthlyExposuresChart.destroy();
+        }
+
+        monthlyExposuresChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [
+                    {
+                        label: 'הסתברות לראות את כל המודעות',
+                        data: cumulativeProbabilities,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'הסתברות מצטברת לראיית כל המודעות'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `הסתברות לראות את כל המודעות: ${context.raw.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'יום בחודש'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'הסתברות חשיפה (%)'
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
     }
 
     // הוספת אירוע טעינ ראשונית
@@ -481,8 +395,11 @@
 
     // הוספת מאזיני אירועים לכל שדה
     document.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', calculateRevenue);
+        input.addEventListener('input', () => {
+            calculateRevenue();
+            calculateMaxAds();
         });
+    });
     </script>
 </body>
 </html> 
