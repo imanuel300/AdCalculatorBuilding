@@ -63,7 +63,7 @@
 
                 <div class="mb-4">
                     <label class="block text-sm font-medium">הסתברות צפייה במסך (%)
-                        <span class="text-xs text-gray-500 block">סיכו שאדם יראה את המסך</span>
+                        <span class="text-xs text-gray-500 block">סיכוי שאדם יראה את המסך</span>
                     </label>
                     <input type="number" id="adExposureProbability" class="w-full p-2 border rounded" placeholder="אחוז חשיפה">
                 </div>
@@ -132,11 +132,19 @@
                 <canvas id="monthlyExposuresChart"></canvas>
             </div>
         </div>
+
+        <div class="mt-8">
+            <div class="bg-gray-100 p-6 rounded-lg" style="height: 400px;">
+                <h2 class="font-bold text-xl mb-4">השפעת מספר המודעות על החשיפה</h2>
+                <canvas id="adsExposureChart"></canvas>
+            </div>
+        </div>
     </div>
 
     <script>
     let currentChart = null;
     let monthlyExposuresChart = null;
+    let adsExposureChart = null;
 
     function calculateMonthlyProbability(movements, adCount, baseProb, days = 30) {
         // חישוב הסתברות לראות מודעה ספציפית במעבר אחד
@@ -252,7 +260,7 @@
             30
         );
 
-        // עדכון תוג
+        // עדכון תצוגה
         document.getElementById('dailyExposuresPerPerson').textContent = 
             `חשיפות פוטנציאליות יומיות לאדם בממוצע: ${averageExposuresPerPerson.toFixed(1)}`;
         document.getElementById('dailyExposures').textContent = 
@@ -275,7 +283,7 @@
         document.getElementById('monthlyAllAdsProbability').textContent = 
             `הסתברות חודשית לצפייה בכל המודעות: ${monthlyAllAdsProbability.toFixed(2)}%`;
 
-        // עדכון גרף
+        // עדכון גרף הכנסות
         const ctx = document.getElementById('revenueChart').getContext('2d');
         
         if (currentChart) {
@@ -285,7 +293,7 @@
         currentChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['יומי', 'חודי', 'שנתי'],
+                labels: ['יומי', 'חודשי', 'שנתי'],
                 datasets: [
                     {
                         label: 'הכנסות',
@@ -317,8 +325,12 @@
             }
         });
 
-        updateMonthlyExposuresChart();
-        calculateMaxAds();
+        // עדכון שאר הגרפים
+        setTimeout(() => {
+            updateMonthlyExposuresChart();
+            updateAdsExposureChart();
+            calculateMaxAds();
+        }, 100);
     }
 
     function fillDummyData() {
@@ -345,7 +357,7 @@
         const adCount = +document.getElementById('adCount').value;
         const baseExposureProbability = +document.getElementById('adExposureProbability').value / 100;
 
-        // חישוב הסתברות לחשיפה למודעה בודדת
+        // חישוב הסתברות לחשיפה מודעה בודדת
         const singleAdProbability = baseExposureProbability / adCount; // הסתברות בסיסית למודעה בודדת
         const dailyProbability = Math.min(1, singleAdProbability * dailyMovements); // הסתברות יומית מצטברת
 
@@ -398,6 +410,78 @@
                         title: {
                             display: true,
                             text: 'הסתברות חשיפה (%)'
+                        },
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    function updateAdsExposureChart() {
+        const ctx = document.getElementById('adsExposureChart').getContext('2d');
+        if (!ctx) {
+            console.error('Could not find adsExposureChart canvas');
+            return;
+        }
+
+        const dailyMovements = +document.getElementById('dailyMovements').value;
+        const baseProb = +document.getElementById('adExposureProbability').value / 100;
+        
+        // יצירת מערך של מספרי מודעות מ-1 עד 50
+        const adCounts = Array.from({length: 50}, (_, i) => i + 1);
+        
+        // חישוב ההסתברות לראות מספר מודעות ייחודיות עבור כל כמות מודעות
+        const exposureProbabilities = adCounts.map(adCount => {
+            return calculateCollectorProbability(dailyMovements, adCount, 30);
+        });
+        
+        console.log('Updating adsExposureChart with probabilities:', exposureProbabilities);
+        
+        if (adsExposureChart) {
+            adsExposureChart.destroy();
+        }
+        
+        adsExposureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: adCounts,
+                datasets: [{
+                    label: 'הסתברות לצפייה בכל המודעות',
+                    data: exposureProbabilities,
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'השפעת מספר המודעות על הסתברות הצפייה'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `הסתברות: ${context.raw.toFixed(1)}% עבור ${context.label} מודעות`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'מספר מודעות במסך'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'הסתברות לצפייה בכל המודעות (%)'
                         },
                         min: 0,
                         max: 100

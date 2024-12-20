@@ -114,6 +114,7 @@ function calculateCollectorProbability(movements, adCount, days = 30) {
 - Tailwind CSS
 - Chart.js
 - JavaScript טהור (Vanilla)
+- python -m http.server
 
 ## מבנה הקבצים
 
